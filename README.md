@@ -22,39 +22,46 @@ The **ZARQA-ARC-Retrocausal-Core** implements an integrated, mathematically veri
 ## 🏛️ Core Mathematical & Defensive Guarantees
 
 ### Phase 1: Foundational Mathematics, Quantum Metrology & Zero-Trust Architecture (`zarqa_arc_retrocausal_core.py`)
-1. **Wheeler-Feynman Time-Symmetric Integral Manifold ($N>2000$ GMRES Solver):** Solves continuous time-symmetric field evolution over $t\in[0,T]$ as a linear Fredholm integral equation of the second kind, combining retarded ($K_{\text{ret}}$) and advanced ($K_{\text{adv}}$) propagators over light-cone distances $s(t,\tau)=c\vert{}t-\tau\vert{}$ using Generalized Minimal Residuals (`scipy.sparse.linalg.gmres`):
-   $$\psi(t)=\psi_0(t)+\frac{\alpha}{2}\int_0^t K_{\text{ret}}(t,\tau)\psi(\tau)\,d\tau+\frac{\alpha}{2}\int_t^T K_{\text{adv}}(\tau,t)\psi(\tau)\,d\tau$$
-2. **Asymptotic Lyapunov Stability Guarantee ($\beta>\alpha$):** Proves and maintains asymptotic convergence across bidirectional recurrent manifolds by bounding the spectral radius of the symmetric operator norm $\Vert{}\mathcal{K}_{\text{sym}}\Vert{}_{\text{op}}$ via Lyapunov energy functionals:
-   $$\Vert{}\mathcal{K}_{\text{sym}}\Vert{}_{\text{op}}\le\sup_{\omega\in\mathbb{R}}\left\vert{}\int_{-\infty}^{\infty}K_{\text{sym}}(\tau)e^{-i\omega\tau}d\tau\right\vert{}=\frac{\alpha}{\beta^2+\omega^2}<\frac{\beta}{\alpha}$$
-3. **Two-State Vector Formalism (TSVF) Quantum Metrology:** Derives complex weak values $A_w=\text{Re}(A_w)+i\text{Im}(A_w)$ between pre-selected ($\psi_i$) and post-selected ($\psi_f$) quantum states, incorporating a dual-epsilon regularizer ($\epsilon_p,\epsilon_q$) and zero-point vacuum threshold $\eta_0=10^{-9}$ to prevent singularities when $\langle\psi_f\vert{}\psi_i\rangle\to0$:
-   $$A_w=\frac{\langle\Psi_{\text{out}}\vert{}\hat{A}\vert{}\Psi_{\text{in}}\rangle}{\langle\Psi_{\text{out}}\vert{}\Psi_{\text{in}}\rangle},\quad\langle\delta\hat{q}\rangle=\frac{\vert{}\langle\Psi_{\text{out}}\vert{}\Psi_{\text{in}}\rangle\vert{}^2\text{Re}(A_w)+2\epsilon_q^2\text{Var}_{\text{in}}(\hat{A})}{\vert{}\langle\Psi_{\text{out}}\vert{}\Psi_{\text{in}}\rangle\vert{}^2+4\epsilon_p^2\text{Var}_{\text{in}}(\hat{A})+\eta_0}$$
-4. **Time-Symmetric Batch Normalization (`TimeSymmetricBatchNorm`):** Eliminates Markovian state drift across bidirectional sequence windows by maintaining dual-register buffers for historical ($\mu_{\text{past}},\sigma_{\text{past}}^2$) and advanced ($\mu_{\text{future}},\sigma_{\text{future}}^2$) distributions, blending both directions into an unbiased pooled variance:
-   $$\sigma_{\text{pooled}}^2=\frac{\sigma_{\text{past}}^2+\sigma_{\text{future}}^2}{2}+\frac{(\mu_{\text{past}}-\mu_{\text{future}})^2}{4}$$
-5. **Bidirectional Recurrent Continuous Manifold (`CRCNN`):** Constructs a multi-branch neural topology of causal cells ($i\pmod2\equiv0$) and retrocausal cells ($i\pmod2\equiv1$), detaching internal state buffers (`state_causal`, `state_retro`) at discrete batch boundaries via Truncated Backpropagation Through Time (`tbptt_steps=10`) to prevent gradient explosion.
+1. **Wheeler-Feynman Time-Symmetric Integral Manifold ($N > 2000$ GMRES Solver):** Solves continuous time-symmetric field evolution over $t \in [0, T]$ as a linear Fredholm integral equation of the second kind, combining retarded ($K_{\text{ret}}$) and advanced ($K_{\text{adv}}$) propagators over light-cone distances $s(t, \tau) = c\vert{}t - \tau\vert{}$ using Generalized Minimal Residuals (`scipy.sparse.linalg.gmres`):
+$$\psi(t) = \psi_0(t) + \frac{\alpha}{2} \int_0^t K_{\text{ret}}(t, \tau) \psi(\tau) \, d\tau + \frac{\alpha}{2} \int_t^T K_{\text{adv}}(\tau, t) \psi(\tau) \, d\tau$$
+
+2. **Asymptotic Lyapunov Stability Guarantee ($\beta > \alpha$):** Proves and maintains asymptotic convergence across bidirectional recurrent manifolds by bounding the spectral radius of the symmetric operator norm $\Vert{}\mathcal{K}_{\text{sym}}\Vert{}_{\text{op}}$ via Lyapunov energy functionals:
+$$\Vert{}\mathcal{K}_{\text{sym}}\Vert{}_{\text{op}} \le \sup_{\omega \in \mathbb{R}} \left\vert{} \int_{-\infty}^{\infty} K_{\text{sym}}(\tau) e^{-i\omega \tau} \, d\tau \right\vert{} = \frac{\alpha}{\beta^2 + \omega^2} < \frac{\beta}{\alpha}$$
+
+3. **Two-State Vector Formalism (TSVF) Quantum Metrology:** Derives complex weak values $A_w = \text{Re}(A_w) + i\text{Im}(A_w)$ between pre-selected ($\psi_i$) and post-selected ($\psi_f$) quantum states, incorporating a dual-epsilon regularizer ($\epsilon_p, \epsilon_q$) and zero-point vacuum threshold $\eta_0 = 10^{-9}$ to prevent singularities when $\langle \psi_f \vert{} \psi_i \rangle \to 0$:
+$$A_w = \frac{\langle \Psi_{\text{out}} \vert{} \hat{A} \vert{} \Psi_{\text{in}} \rangle}{\langle \Psi_{\text{out}} \vert{} \Psi_{\text{in}} \rangle}, \quad \langle \delta \hat{q} \rangle = \frac{\vert{}\langle \Psi_{\text{out}} \vert{} \Psi_{\text{in}} \rangle\vert{}^2 \text{Re}(A_w) + 2\epsilon_q^2 \text{Var}_{\text{in}}(\hat{A})}{\vert{}\langle \Psi_{\text{out}} \vert{} \Psi_{\text{in}} \rangle\vert{}^2 + 4\epsilon_p^2 \text{Var}_{\text{in}}(\hat{A}) + \eta_0}$$
+
+4. **Time-Symmetric Batch Normalization (`TimeSymmetricBatchNorm`):** Eliminates Markovian state drift across bidirectional sequence windows by maintaining dual-register buffers for historical ($\mu_{\text{past}}, \sigma_{\text{past}}^2$) and advanced ($\mu_{\text{future}}, \sigma_{\text{future}}^2$) distributions, blending both directions into an unbiased pooled variance:
+$$\sigma_{\text{pooled}}^2 = \frac{\sigma_{\text{past}}^2 + \sigma_{\text{future}}^2}{2} + \frac{(\mu_{\text{past}} - \mu_{\text{future}})^2}{4}$$
+
+5. **Bidirectional Recurrent Continuous Manifold (`CRCNN`):** Constructs a multi-branch neural topology of causal cells ($i \pmod 2 \equiv 0$) and retrocausal cells ($i \pmod 2 \equiv 1$), detaching internal state buffers (`state_causal`, `state_retro`) at discrete batch boundaries via Truncated Backpropagation Through Time (`tbptt_steps = 10`) to prevent gradient explosion.
+
 6. **Zero-Mask Retrocausal Attention (`RetrocausalAttention`):** Bypasses lower-triangular causal masking (`_retro_mask -> torch.zeros`) to compute full-matrix correlations across the temporal sequence, enabling advanced future attractors to directly modulate present-state representations.
-7. **Ergodic Variational MAP Estimation (`InverseCVAE`):** Regularizes latent retrodictive trajectories $\mathbf{Y}=\{y_1,\dots,y_T\}$ by optimizing Helmholtz variational free energy functionals $\mathcal{F}(\mathbf{X},\mathbf{Y})$ equipped with an ergodic Conditional Restricted Boltzmann Machine (`ConditionalRBM`) harmonic prior.
+
+7. **Ergodic Variational MAP Estimation (`InverseCVAE`):** Regularizes latent retrodictive trajectories $\mathbf{Y} = \{y_1, \dots, y_T\}$ by optimizing Helmholtz variational free energy functionals $\mathcal{F}(\mathbf{X}, \mathbf{Y})$ equipped with an ergodic Conditional Restricted Boltzmann Machine (`ConditionalRBM`) harmonic prior.
+
 8. **Zero-Trust POSIX Sandboxing & Blue-Green Orchestration:** Provisions immutable timestamped virtual environments (`/opt/zarqa_venv_YYYYMMDDHHMMSS`), runs under an unprivileged `zarqa:zarqa` service account, applies strict systemd kernel sandboxing (`ProtectSystem=strict`, `PrivateTmp=yes`, `LimitNOFILE=65536`), and integrates a **120-second autonomous watchdog** that automatically reverts `.venv` symlinks upon health-check degradation.
 
 ---
 
 ### 📊 Phase 1 Verification Evidence & Execution Logs
 
-The following terminal logs capture the live production deployment, deterministic self-test execution, and systemd service supervision of the ZARQA ARC Retrocausal Core (`v1.0.0-phase1`):
+The following terminal logs capture the live production deployment, deterministic self-test execution, systemd supervision, and real-time telemetry exposition of the ZARQA ARC Retrocausal Core (`v1.0.0-phase1`):
 
-#### 1. Automated Production Deployment & Permission Hardening
-*Execution of `--auto-deploy` performing zero-trust POSIX permission hardening, zombie process cleanup, socket clearing on port 9090, syntax verification, and automated Ubuntu system package provisioning.*  
+#### 1. Automated Blue-Green Production Deployment (`--auto-deploy`)
+*Execution of `--auto-deploy` performing zero-trust POSIX permission hardening, zombie process cleanup, socket clearing on port **9090**, syntax verification, and automated Ubuntu system package provisioning.*  
 ![Phase 1 Auto-Deploy and Permission Hardening](assets/images/zarc_1_1.PNG)
 
-#### 2. Deterministic Bare-Metal Pre-Flight Self-Test Suite & Health Check
-*Execution of the isolated pre-flight diagnostic envelope verifying all 8 mathematical, physics, ML, and telemetry subsystems with zero errors (`✔ All self-tests PASSED`), followed by the 120-second health check validation (`✔ Deployment complete. Service is running and healthy.`).*  
+#### 2. Deterministic Bare-Metal Pre-Flight Self-Test Suite & Health Check (`--test`)
+*Execution of the isolated pre-flight diagnostic envelope verifying all 8 mathematical, physics, ML, and telemetry subsystems (`prosper-nn`, sparse GMRES, Prometheus server, Acausal field solver, CRCNN, RetroAttention, TSVF, RBM free energy -> **`✔ All self-tests PASSED`**) followed by the 120-second health check validation (**`✔ Deployment complete. Service is running and healthy.`**).*  
 ![Phase 1 Deterministic Self-Tests & Health Check](assets/images/zarc_1_2.PNG)
 
-#### 3. Service Daemon Supervision & cgroup Resource Bounding
-*`sudo systemctl status zarqa-retrocausal` confirming active execution (`active (running)`) under strict CGroup memory bounding (240.9 MB RAM peak / `1.5G` ceiling) and atomic PID tracking (`PID 363828`).*  
+#### 3. Systemd Service Supervision & cgroup Resource Bounding
+*`sudo systemctl status zarqa-retrocausal` confirming active execution (**`active (running)`**) under strict CGroup memory bounding (**240.9 MB** memory peak / `1.5G` ceiling) and atomic PID tracking (`PID 363828`).*  
 ![Phase 1 Systemd Status & Memory Bounding](assets/images/zarc_1_3.PNG)
 
 #### 4. Real-Time Prometheus Telemetry & CPython Runtime Instrumentation
-*Live query via `curl http://localhost:9090/metrics` exposing real-time CPython 3.12.13 garbage collection counters (`python_gc_collections_total`), virtual/resident memory bytes (382.1 MB RSS), CPU utilization, and open file descriptor hygiene (`8 open / 65,536 max`).*  
+*Live query via `curl http://localhost:9090/metrics` exposing real-time CPython 3.12.13 garbage collection counters (`python_gc_collections_total`), virtual/resident memory bytes (**382.1 MB** RSS), CPU utilization, and open file descriptor hygiene (`8 open / 65,536 max`).*  
 ![Phase 1 Prometheus Telemetry & CPython Metrics](assets/images/zarc_1_4.PNG)
 
 #### 5. Continuous Acausal Inference & Bounded Lyapunov Cycles
@@ -134,9 +141,9 @@ curl http://localhost:9090/metrics
 
 | Standard | Domain | Implementation Status |
 | --- | --- | --- |
-| **Wheeler-Feynman / TSVF Quantum Metrology** | Time-Symmetric Physics & Weak Measurement | **100% Compliant:** Supports continuous-time Volterra absorber operators, dual-epsilon pointer variance regularization ($\epsilon_p,\epsilon_q$), zero-point vacuum thresholding ($\eta_0=10^{-9}$), and non-signaling density checks. |
+| **Wheeler-Feynman / TSVF Quantum Metrology** | Time-Symmetric Physics & Weak Measurement | **100% Compliant:** Supports continuous-time Volterra absorber operators, dual-epsilon pointer variance regularization ($\epsilon_p, \epsilon_q$), zero-point vacuum thresholding ($\eta_0 = 10^{-9}$), and non-signaling density checks. |
 | **POSIX Least-Privilege & ISO/IEC 62443** | Zero-Trust Industrial Systems & OS Sandboxing | **100% Compliant:** Enforces unprivileged `zarqa:zarqa` execution, strict filesystem immutability (`ProtectSystem=strict`, `ProtectHome=yes`, `0750` mode), network protocol confinement (`AF_INET AF_UNIX`), and automated 120s blue-green rollback watchdogs. |
-| **Mathematical Lyapunov Bounding** | Non-Markovian Machine Learning Stability | **100% Compliant:** Guaranteed via rigorous eigenvalue spectral radius bounds ($\beta>\alpha$), bidirectional time-symmetric batch normalization pooling, and Truncated Backpropagation Through Time (`tbptt_steps=10`). |
+| **Mathematical Lyapunov Bounding** | Non-Markovian Machine Learning Stability | **100% Compliant:** Guaranteed via rigorous eigenvalue spectral radius bounds ($\beta > \alpha$), bidirectional time-symmetric batch normalization pooling, and Truncated Backpropagation Through Time (`tbptt_steps = 10`). |
 
 ---
 
